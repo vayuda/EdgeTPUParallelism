@@ -2,8 +2,6 @@ import numpy as np
 import tensorflow as tf
 import time
 
-for device in tf.config.list_physical_devices():
-    print(device)
     
 def generate_input():
     return np.random.rand(10, 28, 28).astype(np.float32)
@@ -58,3 +56,4 @@ def keras_inference(num_trials):
     print("average inference time: ", avg_inference_time, "ms")
 
 tflite_inference(100)
+
