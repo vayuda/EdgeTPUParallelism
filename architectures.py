@@ -57,7 +57,7 @@ def base_conv():
 def conv2():
     model = tf.keras.models.Sequential([
 
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256, 3)),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
         tf.keras.layers.DepthwiseConv2D((3, 3), activation='relu'),
         tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
@@ -80,5 +80,5 @@ layer_inputs= {
     "simple": (28, 28),
     "base_dnn": (28, 28),
     "base_conv": [(224,224,3),(224,224,3),(224,224,3),(224,224,3),(109, 109, 64), ( 51, 51, 128), (256,)],
-    "conv2": [(256,256,3), (256,256,3),(256,256,3),(256,256,3), (125, 125, 64), (128, ), (512,)]
+    "conv2": [(128,128,3), (128,128,3),(128,128,3),(128,128,3), (61, 61, 64), (128, ), (512,)]
 }
