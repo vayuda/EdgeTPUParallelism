@@ -5,12 +5,29 @@ def simple():
     model = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(128, activation='relu'),
-        # tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(64, activation='relu'),
-        # tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
     return model
+
+
+def base_dnn():
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(64, 64)),
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(256, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
+        tf.keras.layers.Dense(10, activation='softmax')
+    ])
+    return model
+
 
 def base_conv():
     model = tf.keras.models.Sequential([
@@ -36,29 +53,32 @@ def base_conv():
     ])
     return model
 
-def conv_1a():
-    model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256,1)),
-        tf.keras.layers.DepthwiseConv2D((3, 3), activation='relu'),
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
-        tf.keras.layers.MaxPooling2D((2, 2)),
-    ])
-    return model
 
-def conv_1b():
+def conv2():
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(256, 256, 3)),
         tf.keras.layers.DepthwiseConv2D((3, 3), activation='relu'),
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.MaxPooling2D((2, 2)),
         
-        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
         tf.keras.layers.DepthwiseConv2D((3, 3), activation='relu'),
-        tf.keras.layers.Conv2D(256, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
         tf.keras.layers.GlobalAveragePooling2D(),
+        
+        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Dropout(0.2),
         
         tf.keras.layers.Dense(128, activation='relu'),
         tf.keras.layers.Dropout(0.2),
         tf.keras.layers.Dense(10, activation='softmax')
     ])
     return model
+
+layer_inputs= {
+    "simple": (28, 28),
+    "base_dnn": (28, 28),
+    "base_conv": [(224,224,3),(224,224,3),(224,224,3),(224,224,3),(109, 109, 64), ( 51, 51, 128), (256,)],
+    "conv2": [(256,256,3), (256,256,3),(256,256,3),(256,256,3), (125, 125, 64), (128, ), (512,)]
+}

@@ -2,13 +2,43 @@ import numpy as np
 import tensorflow as tf
 import time
 
-    
-def generate_input():
-    return np.random.rand(10, 28, 28).astype(np.float32)
 
-def tflite_inference(num_trials):
+def DNN_benchmark():
+    from architectures import base_dnn
+    model = base_dnn()
+    batch_sizes = [1,4,16,64,256,1024]
+    with tf.device('/gpu:0'):
+        for batch_size in batch_sizes:
+            times = []
+            for i in range(30):
+                start = time.perf_counter()
+                outputs = model.predict(np.random.rand(batch_size, 64, 64), verbose=0)
+                end = time.perf_counter()
+                times.append((end-start)*1000)
+            print(f"{np.mean(times):.3f}",end = " ")
+        print("")
+
+# check if gpu available before running
+def gpu_benchmark(models, inputs):
+    print(tf.config.experimental.list_physical_devices())
+    with tf.device('/gpu:0'):
+        batch_sizes = [1,4,16,64,256,1024]
+        for i,input_size in enumerate(inputs):
+            model = tf.keras.models.load_model(f"{models}_{i+1}.keras")
+            print(f"GPU_CNN_{i} batch size 1, 4, 16, 256, 1024")
+            
+            for batch_size in batch_sizes:
+                start = time.perf_counter()
+                outputs = model.predict(np.random.rand(batch_size, *input_size), verbose=0)
+                end = time.perf_counter()
+                print(f"{(end-start)*1000:.3f}",end = " ")
+            print("")
+            
+
+def tflite_inference(num_trials=1000):
+        
     # Load the TFLite model
-    interpreter = tf.lite.Interpreter(model_path="mnist_model.tflite")
+    interpreter = tf.lite.Interpreter(model_path="mnist_model_batched.tflite")
     interpreter.allocate_tensors()
 
     # Get input and output details
@@ -21,9 +51,8 @@ def tflite_inference(num_trials):
     # Prepare input data
     input_shape = input_details[0]['shape']
     inference_times = []
-    
-    for trial in range(num_trials):
-        input_data = generate_input()
+    inputs = [tf.random.normal(None, *input_shape) for _ in range(num_trials)]
+    for input_data in inputs:
         start = time.perf_counter()
         input_data = (input_data / input_scale) + input_zero_point
         interpreter.set_tensor(input_details[0]['index'], input_data.astype(np.uint8))
@@ -31,29 +60,15 @@ def tflite_inference(num_trials):
         output_data = interpreter.get_tensor(output_details[0]['index'])
         output_data = output_scale * (output_data - output_zero_point)
         end = time.perf_counter()
-        inference_times.append((end - start)*1000/10)
-
-    avg_inference_time = np.mean(inference_times)
-    print("average inference time: ", avg_inference_time, "ms")
-    
-
-def keras_inference(num_trials):
-    # Load the Keras model
-    model = tf.keras.models.load_model("mnist_model.keras")
-
-    # Prepare input data
-    input_shape = model.input_shape
-    inference_times = []
-    batch_size = 32
-    for trial in range(num_trials):
-        input_data = np.random.rand(batch_size, 28, 28).astype(np.float32)
-        start = time.perf_counter()
-        output_data = model.predict(input_data,verbose = 0)
-        end = time.perf_counter()
-        inference_times.append((end - start)*1000/batch_size)
+        inference_times.append((end - start)*1000)
 
     avg_inference_time = np.mean(inference_times)
     print("average inference time: ", avg_inference_time, "ms")
 
-tflite_inference(100)
-
+from architectures import layer_inputs
+#conv1_inputs = layer_inputs["conv1"]
+conv2_inputs = layer_inputs["conv2"]
+# gpu_benchmark("models/conv1/GPU_CNN",conv1_inputs)
+gpu_benchmark("models/conv2/GPU_CNN2",conv2_inputs)
+# DNN_benchmark()
+#85.304 68.740 61.173 70.153 98.186 210.742
