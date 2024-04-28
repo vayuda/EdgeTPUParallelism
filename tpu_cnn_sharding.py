@@ -49,7 +49,7 @@ def main():
             cnn_times.append([0,]*len(batch_sizes))
         else:
             shard_times = []
-            tflite_path = os.path.join(cwd, 'models', 'TPU_CNN_' + str(shard))
+            tflite_path = os.path.join(cwd, 'models', 'conv2', 'TPU_CNN2_' + str(shard) + ".tflite")
 
             # print(tflite_path)
 

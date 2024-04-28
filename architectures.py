@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 def simple():
     # Define the model architecture
@@ -13,18 +14,19 @@ def simple():
     return model
 
 
-def base_dnn():
+def base_dnn(layer_scaling):
+    # layer_scaling in [1, 2, ..., 7]
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Flatten(input_shape=(64, 64)),
-        tf.keras.layers.Dense(512, activation='relu'),
+        tf.keras.layers.Flatten(input_shape=(int(2**layer_scaling), int(2**layer_scaling))),
+        tf.keras.layers.Dense(int(2**(layer_scaling*1.5)), activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(256, activation='relu'),
+        tf.keras.layers.Dense(int(2**(layer_scaling*1.3)), activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(int(2**(layer_scaling*1.1)), activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(int(2**layer_scaling), activation='relu'),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(10, activation='softmax')
+        tf.keras.layers.Dense(int(2*layer_scaling), activation='softmax')
     ])
     return model
 
@@ -82,3 +84,26 @@ layer_inputs= {
     "base_conv": [(224,224,3),(224,224,3),(224,224,3),(224,224,3),(109, 109, 64), ( 51, 51, 128), (256,)],
     "conv2": [(128,128,3), (128,128,3),(128,128,3),(128,128,3), (61, 61, 64), (128, ), (512,)]
 }
+
+
+def convert_to_tflite(model, filename):
+    input_size = model.layers[0].input_shape[1:]
+
+    def representative_dataset():
+        for _ in range(100):
+            yield [np.random.rand(1, *input_size).astype(np.float32),]
+
+    quantizer = tf.lite.TFLiteConverter.from_keras_model(model)
+    quantizer.optimizations = [tf.lite.Optimize.DEFAULT]
+    quantizer.representative_dataset = representative_dataset
+    quantizer.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
+    quantizer.inference_input_type = tf.uint8
+    quantizer.inference_output_type = tf.uint8
+
+    tflite_quant_model = quantizer.convert()
+
+    # Save the TFLite model to a file
+    with open(filename, "wb") as f:
+        f.write(tflite_quant_model)
+    # print("saved tf lite model")
+    return tflite_quant_model
