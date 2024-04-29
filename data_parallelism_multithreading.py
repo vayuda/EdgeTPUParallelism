@@ -5,12 +5,12 @@ import subprocess
 
 # running other file using run()
 
-def thread_function(name):
+def call_tpu(name):
     logging.info("Thread %s: starting", name)
     subprocess.run(["python", "run_matmul.py"])
     logging.info("Thread %s: finishing", name)
 
-def thread_function_2(name):
+def call_gpu(name):
     logging.info("Thread %s: starting", name)
     subprocess.run(["python", "gpu_shard.py"])
     logging.info("Thread %s: finishing", name)

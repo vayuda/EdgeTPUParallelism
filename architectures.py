@@ -31,6 +31,35 @@ def base_dnn(layer_scaling):
     return model
 
 
+def alexnet():
+    alexnet_model = tf.keras.models.Sequential([
+        # https://medium.com/@syedsajjad62/alex-net-explanation-and-implementation-in-tensorflow-and-keras-8047efeb7a0f
+        # https://www.wikiwand.com/en/AlexNet#Media/File:Comparison_image_neural_networks.svg
+        # Layer 1: Convolutional layer with 64 filters of size 11x11x3
+        tf.keras.layers.Conv2D(filters=64, kernel_size=(11, 11), strides=(4, 4), padding='valid', activation='relu',
+                         input_shape=(227, 227, 3)),
+        # Layer 2: Max pooling layer with pool size of 3x3
+        tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
+        # Layer 3-5: 3 more convolutional layers with similar structure as Layer 1
+        tf.keras.layers.Conv2D(filters=192, kernel_size=(5, 5), padding='same', activation='relu').
+        tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
+        tf.keras.layers.Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu'),
+        tf.keras.layers.Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu'),
+        tf.keras.layers.Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu'),
+        tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
+        # Layer 6: Fully connected layer with 4096 neurons
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(4096, activation='relu'),
+        tf.keras.layers.Dropout(0.5),
+        # Layer 7: Fully connected layer with 4096 neurons
+        tf.keras.layers.Dense(4096, activation='relu'),
+        tf.keras.layers.Dropout(0.5),
+        # Layer 8: Classification
+        tf.keras.layers.Dense(1000, activation='softmax')
+    ])
+    return alexnet_model
+
+
 def base_conv():
     model = tf.keras.models.Sequential([
 
