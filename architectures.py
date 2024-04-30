@@ -1,3 +1,5 @@
+import os.path
+
 import tensorflow as tf
 import numpy as np
 
@@ -41,7 +43,7 @@ def alexnet():
         # Layer 2: Max pooling layer with pool size of 3x3
         tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
         # Layer 3-5: 3 more convolutional layers with similar structure as Layer 1
-        tf.keras.layers.Conv2D(filters=192, kernel_size=(5, 5), padding='same', activation='relu').
+        tf.keras.layers.Conv2D(filters=192, kernel_size=(5, 5), padding='same', activation='relu'),
         tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=(2, 2)),
         tf.keras.layers.Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu'),
         tf.keras.layers.Conv2D(filters=384, kernel_size=(3, 3), padding='same', activation='relu'),
@@ -136,3 +138,6 @@ def convert_to_tflite(model, filename):
         f.write(tflite_quant_model)
     # print("saved tf lite model")
     return tflite_quant_model
+
+# convert_to_tflite(alexnet(), os.path.join("models", "TPU_AlexNet.tflite"))
+# convert_to_tflite(base_dnn(5), os.path.join("models", "TPU_DenseNet.tflite"))
